@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S Y N D I C A T E _ N O D E</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-main: #0f0;
+            --text-dim: #005500;
+            --glitch-red: #ff003c;
+            --glitch-blue: #00f0ff;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Эффект старого монитора и сканлайны */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .crt {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            padding: 40px;
+            box-sizing: border-box;
+            animation: textShadow 1.6s infinite;
+        }
+
+        #terminal-container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 3;
+            text-shadow: 0 0 5px var(--text-main);
+        }
+
+        .line {
+            margin: 10px 0;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+            opacity: 0.9;
+        }
+
+        .sys { color: var(--text-dim); }
+        .msg { color: var(--text-main); font-weight: bold; }
+        
+        /* Глитч-текст */
+        .glitch {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            position: relative;
+            display: inline-block;
+            text-shadow: 0.05em 0 0 var(--glitch-red), -0.025em -0.05em 0 var(--glitch-blue),
+                         0.025em 0.05em 0 var(--text-main);
+            animation: glitch 500ms infinite;
+        }
+
+        .critical {
+            color: var(--glitch-red);
+            font-size: 2rem;
+            text-align: center;
+            margin-top: 50px;
+            animation: pulse 1s infinite, glitch 300ms infinite;
+        }
+
+        /* Каретка */
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2rem;
+            background-color: var(--text-main);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        /* Кнопка ребута (для записи не нужна, но полезна для дублей) */
+        #reboot-btn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--text-dim);
+            padding: 10px 20px;
+            font-family: inherit;
+            cursor: pointer;
+            z-index: 10;
+        }
+        #reboot-btn:hover { background: var(--text-dim); color: #000; }
+
+        /* Анимации искажений */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        @keyframes textShadow {
+            0% { text-shadow: 0.4389924193300864px 0 1px rgba(0,30,255,0.5), -0.4389924193300864px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+            5% { text-shadow: 2.7928974010788217px 0 1px rgba(0,30,255,0.5), -2.7928974010788217px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+            100% { text-shadow: 0.4389924193300864px 0 1px rgba(0,30,255,0.5), -0.4389924193300864px 0 1px rgba(255,0,80,0.3), 0 0 3px; }
+        }
+        @keyframes glitch {
+            0% { text-shadow: 0.05em 0 0 var(--glitch-red), -0.05em -0.024em 0 var(--glitch-blue); }
+            14% { text-shadow: 0.05em 0 0 var(--glitch-red), -0.05em -0.024em 0 var(--glitch-blue); }
+            15% { text-shadow: -0.05em -0.025em 0 var(--glitch-red), 0.025em 0.025em 0 var(--glitch-blue); }
+            49% { text-shadow: -0.05em -0.025em 0 var(--glitch-red), 0.025em 0.025em 0 var(--glitch-blue); }
+            50% { text-shadow: 0.025em 0.05em 0 var(--glitch-red), 0.05em 0 0 var(--glitch-blue); }
+            99% { text-shadow: 0.025em 0.05em 0 var(--glitch-red), 0.05em 0 0 var(--glitch-blue); }
+            100% { text-shadow: -0.025em 0 0 var(--glitch-red), -0.025em -0.025em 0 var(--glitch-blue); }
+        }
+
+        /* Эффект потери сигнала для всего экрана */
+        .signal-lost-screen {
+            animation: glitch-screen 0.2s 5 forwards;
+        }
+        @keyframes glitch-screen {
+            0% { transform: translate(0) }
+            20% { transform: translate(-5px, 5px) }
+            40% { transform: translate(-5px, -5px) }
+            60% { transform: translate(5px, 5px) }
+            80% { transform: translate(5px, -5px) }
+            100% { transform: translate(0) }
+        }
+    </style>
+</head>
+<body class="crt">
+    <div id="terminal-container"></div>
+    <button id="reboot-btn" onclick="location.reload()">[ REBOOT ]</button>
+
+    <script>
+        const terminal = document.getElementById('terminal-container');
+        const rebootBtn = document.getElementById('reboot-btn');
+        
+        // Сценарий. delay - скорость печати символа, pauseAfter - пауза после строки (в мс)
+        const sequence = [
+            { text: "INIT_SYSTEM_KERNEL... OK", delay: 10, pauseAfter: 800, class: 'sys' },
+            { text: "BYPASSING_NODE_SECURITY... OK", delay: 20, pauseAfter: 1200, class: 'sys' },
+            { text: "INJECTING_PAYLOAD... WAITING", delay: 30, pauseAfter: 2000, class: 'sys' },
+            { text: " ", delay: 0, pauseAfter: 500, class: 'sys' }, // пустая строка
+            { text: "[SIGNAL_START]", delay: 80, pauseAfter: 2500, class: 'glitch' },
+            { text: "> всем привет.", delay: 60, pauseAfter: 3000, class: 'msg' },
+            { text: "> занимаюсь глитчем вся фигня.", delay: 50, pauseAfter: 2500, class: 'msg' },
+            { text: "> эм.. пук.. прив.. хех.", delay: 120, pauseAfter: 3500, class: 'msg' }, // Медленный ввод
+            { text: "> делаю артефакты из ничего.", delay: 50, pauseAfter: 2500, class: 'msg' },
+            { text: "> забирай свой industrial pack.", delay: 60, pauseAfter: 3500, class: 'msg' },
+            { text: " ", delay: 0, pauseAfter: 500, class: 'sys' },
+            { text: "[SIGNAL_LOST]", delay: 30, pauseAfter: 0, class: 'critical' }
+        ];
+
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        async function typeLine(lineData) {
+            const lineElem = document.createElement('div');
+            lineElem.className = `line ${lineData.class}`;
+            terminal.appendChild(lineElem);
+
+            const cursor = document.createElement('span');
+            cursor.className = 'cursor';
+            
+            // Если это [SIGNAL_LOST], делаем жуткий эффект экрану
+            if (lineData.class === 'critical') {
+                document.body.classList.add('signal-lost-screen');
+                await sleep(200);
+            }
+
+            for (let i = 0; i < lineData.text.length; i++) {
+                lineElem.innerHTML = lineData.text.substring(0, i + 1);
+                lineElem.appendChild(cursor);
+                
+                // Рандомизация скорости печати для живости (эффект реального человека)
+                let currentDelay = lineData.delay;
+                if (lineData.class === 'msg') {
+                    currentDelay += (Math.random() * 40 - 20); // +/- 20ms
+                }
+                await sleep(currentDelay);
+            }
+
+            // Удаляем каретку с этой строки после завершения ввода
+            cursor.remove();
+            
+            if (lineData.pauseAfter > 0) {
+                // Добавляем мигающую каретку в конец готовой строки на время паузы
+                lineElem.appendChild(cursor);
+                await sleep(lineData.pauseAfter);
+                cursor.remove();
+            }
+        }
+
+        async function bootTerminal() {
+            terminal.innerHTML = '';
+            rebootBtn.style.display = 'none';
+            document.body.classList.remove('signal-lost-screen');
+
+            for (const line of sequence) {
+                await typeLine(line);
+            }
+
+            // В самом конце оставляем финальную каретку и показываем кнопку рестарта (для тебя)
+            const finalCursor = document.createElement('span');
+            finalCursor.className = 'cursor';
+            terminal.lastChild.appendChild(finalCursor);
+            
+            await sleep(2000);
+            rebootBtn.style.display = 'block';
+        }
+
+        // Запуск
+        window.onload = bootTerminal;
+    </script>
+</body>
+</html>
